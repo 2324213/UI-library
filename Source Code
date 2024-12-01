@@ -1,0 +1,125 @@
+-- Themes for UI
+local Themes = {
+    Atlantic = {Window = Color3.fromRGB(0, 255, 255), Elements = Color3.fromRGB(0, 128, 128)},
+    Lavander = {Window = Color3.fromRGB(128, 0, 128), Elements = Color3.fromRGB(64, 0, 64)},
+    Croxied = {Window = Color3.fromRGB(200, 100, 255), Elements = Color3.fromRGB(128, 0, 128)},
+    Synapse = {Window = Color3.fromRGB(0, 0, 0), Elements = Color3.fromRGB(64, 64, 64)},
+    Ocean = {Window = Color3.fromRGB(135, 206, 250), Elements = Color3.fromRGB(0, 0, 139)},
+    Light = {Window = Color3.fromRGB(255, 255, 255), Elements = Color3.fromRGB(169, 169, 169)},
+    Dark = {Window = Color3.fromRGB(105, 105, 105), Elements = Color3.fromRGB(169, 169, 169)},
+    Spooky = {Window = Color3.fromRGB(0, 0, 0), Elements = Color3.fromRGB(255, 165, 0)},
+}
+
+-- Create the main UI window
+local function CreateWindow(properties)
+    local theme = Themes[properties.Theme or "Atlantic"] -- Default to Atlantic if no theme is set
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CustomUI"
+    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    local window = Instance.new("Frame")
+    window.Size = UDim2.new(0.5, 0, 0.5, 0)
+    window.Position = UDim2.new(0.25, 0, 0.25, 0)
+    window.BackgroundColor3 = theme.Window
+    window.BackgroundTransparency = 0.35
+    window.BorderSizePixel = 0
+    window.Parent = screenGui
+
+    -- Add UICorner for a smooth appearance
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = window
+
+    return window
+end
+
+-- Create a tab inside the UI
+local function CreateTab(parent, tabName)
+    local tab = Instance.new("TextButton")
+    tab.Size = UDim2.new(0.2, 0, 0.1, 0)
+    tab.Position = UDim2.new(0, 10, (#parent:GetChildren() * 0.12), 0)
+    tab.Text = tabName
+    tab.BackgroundColor3 = parent.BackgroundColor3
+    tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tab.Parent = parent
+
+    -- Add UICorner
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 5)
+    corner.Parent = tab
+
+    return tab
+end
+
+-- Create a slider with min/max values
+local function CreateSlider(parent, min, max, suffix, callback)
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Size = UDim2.new(0.8, 0, 0.1, 0)
+    sliderFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
+    sliderFrame.BackgroundColor3 = parent.BackgroundColor3
+    sliderFrame.Parent = parent
+
+    local sliderBar = Instance.new("Frame")
+    sliderBar.Size = UDim2.new(0.5, 0, 1, 0)
+    sliderBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    sliderBar.Parent = sliderFrame
+
+    -- Add UICorner
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 5)
+    corner.Parent = sliderFrame
+
+    -- Slider functionality
+    sliderFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local x = input.Position.X - sliderFrame.AbsolutePosition.X
+            local percent = math.clamp(x / sliderFrame.AbsoluteSize.X, 0, 1)
+            sliderBar.Size = UDim2.new(percent, 0, 1, 0)
+
+            local value = math.floor(min + (max - min) * percent)
+            callback(value)
+        end
+    end)
+end
+
+-- Show a welcome message
+local function ShowWelcomeMessage(config)
+    local message = Instance.new("TextLabel")
+    message.Text = config.WelcomeMessage or "Welcome to Your UI!"
+    message.Size = UDim2.new(0.4, 0, 0.1, 0)
+    message.Position = UDim2.new(0.3, 0, 0.45, 0)
+    message.TextScaled = true
+    message.TextColor3 = Color3.fromRGB(255, 255, 255)
+    message.BackgroundTransparency = 1
+    message.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    -- Fade-in effect
+    for i = 1, 10 do
+        message.TextTransparency = 1 - (i / 10)
+        wait(0.1)
+    end
+
+    wait(2)
+
+    -- Fade-out effect
+    for i = 1, 10 do
+        message.TextTransparency = i / 10
+        wait(0.1)
+    end
+
+    message:Destroy()
+end
+
+-- Example Usage
+local myWindow = CreateWindow({Theme = "Atlantic"})
+
+ShowWelcomeMessage({
+    WelcomeMessage = "Welcome to Croxied UI!",
+})
+
+local tab1 = CreateTab(myWindow, "Home")
+local tab2 = CreateTab(myWindow, "Settings")
+
+CreateSlider(myWindow, 0, 100, "Points", function(value)
+    print("Slider Value:", value)
+end)
